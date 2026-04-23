@@ -2,7 +2,7 @@
 name = "kiriminaja"
 version = "0.1.0"
 edition = "2021"
-rust-version = "1.75"
+rust-version = "1.86"
 description = "Official Rust SDK for the KiriminAja logistics API"
 license = "MIT"
 authors = ["KiriminAja <developer@kiriminaja.com>"]
