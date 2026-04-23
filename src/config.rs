@@ -1,16 +1,11 @@
 use std::time::Duration;
 
 /// Target environment for the KiriminAja API.
-#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum Env {
+    #[default]
     Sandbox,
     Production,
-}
-
-impl Default for Env {
-    fn default() -> Self {
-        Env::Sandbox
-    }
 }
 
 impl Env {
