@@ -8,7 +8,7 @@ Official Rust SDK for the [KiriminAja](https://kiriminaja.com) logistics API. As
 
 ## Requirements
 
-- Rust 1.86+
+- Rust 1.88+
 - An async runtime compatible with `reqwest` (Tokio recommended)
 
 ## Installation
