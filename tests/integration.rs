@@ -21,7 +21,10 @@ fn ok_json() -> ResponseTemplate {
 }
 
 async fn install_default(server: &wiremock::MockServer) {
-    Mock::given(any()).respond_with(ok_json()).mount(server).await;
+    Mock::given(any())
+        .respond_with(ok_json())
+        .mount(server)
+        .await;
 }
 
 async fn last_request(server: &wiremock::MockServer) -> wiremock::Request {
@@ -172,7 +175,11 @@ async fn pricing_express_endpoint_sends_payload() {
         .mount(&server)
         .await;
 
-    client.coverage_area.pricing_express(&payload).await.unwrap();
+    client
+        .coverage_area
+        .pricing_express(&payload)
+        .await
+        .unwrap();
 }
 
 #[tokio::test]
@@ -204,19 +211,30 @@ async fn pricing_instant_endpoint_sends_payload() {
         .mount(&server)
         .await;
 
-    client.coverage_area.pricing_instant(&payload).await.unwrap();
+    client
+        .coverage_area
+        .pricing_instant(&payload)
+        .await
+        .unwrap();
 }
 
 #[tokio::test]
 async fn coverage_area_delegates_address_methods() {
     let (client, server) = new_mock_client("").await;
-    Mock::given(any()).respond_with(ok_json()).mount(&server).await;
+    Mock::given(any())
+        .respond_with(ok_json())
+        .mount(&server)
+        .await;
 
     client.coverage_area.provinces().await.unwrap();
     client.coverage_area.cities(1).await.unwrap();
     client.coverage_area.districts(1).await.unwrap();
     client.coverage_area.sub_districts(1).await.unwrap();
-    client.coverage_area.districts_by_name("test").await.unwrap();
+    client
+        .coverage_area
+        .districts_by_name("test")
+        .await
+        .unwrap();
 
     let reqs = server.received_requests().await.unwrap();
     let paths: Vec<&str> = reqs.iter().map(|r| r.url.path()).collect();
@@ -664,7 +682,9 @@ async fn api_error_on_401() {
 async fn api_error_on_500() {
     let (client, server) = new_mock_client("").await;
     Mock::given(any())
-        .respond_with(ResponseTemplate::new(500).set_body_string("<html>Internal Server Error</html>"))
+        .respond_with(
+            ResponseTemplate::new(500).set_body_string("<html>Internal Server Error</html>"),
+        )
         .mount(&server)
         .await;
 

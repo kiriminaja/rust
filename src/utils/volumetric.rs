@@ -56,11 +56,23 @@ pub fn calculate(items: &[Item]) -> Dimensions {
     let vol_side = l_side * w_side * h_side;
 
     if vol_vert <= vol_hor && vol_vert <= vol_side {
-        Dimensions { length: l_vert, width: w_vert, height: h_vert }
+        Dimensions {
+            length: l_vert,
+            width: w_vert,
+            height: h_vert,
+        }
     } else if vol_hor <= vol_side {
-        Dimensions { length: l_hor, width: w_hor, height: h_hor }
+        Dimensions {
+            length: l_hor,
+            width: w_hor,
+            height: h_hor,
+        }
     } else {
-        Dimensions { length: l_side, width: w_side, height: h_side }
+        Dimensions {
+            length: l_side,
+            width: w_side,
+            height: h_side,
+        }
     }
 }
 
@@ -75,37 +87,107 @@ mod tests {
 
     #[test]
     fn single_item() {
-        let out = calculate(&[Item { qty: 1, length: 10.0, width: 5.0, height: 3.0 }]);
-        assert_eq!(out, Dimensions { length: 10.0, width: 5.0, height: 3.0 });
+        let out = calculate(&[Item {
+            qty: 1,
+            length: 10.0,
+            width: 5.0,
+            height: 3.0,
+        }]);
+        assert_eq!(
+            out,
+            Dimensions {
+                length: 10.0,
+                width: 5.0,
+                height: 3.0
+            }
+        );
     }
 
     #[test]
     fn vertical_wins() {
-        let out = calculate(&[Item { qty: 2, length: 10.0, width: 10.0, height: 2.0 }]);
-        assert_eq!(out, Dimensions { length: 10.0, width: 10.0, height: 4.0 });
+        let out = calculate(&[Item {
+            qty: 2,
+            length: 10.0,
+            width: 10.0,
+            height: 2.0,
+        }]);
+        assert_eq!(
+            out,
+            Dimensions {
+                length: 10.0,
+                width: 10.0,
+                height: 4.0
+            }
+        );
     }
 
     #[test]
     fn horizontal_wins() {
         let out = calculate(&[
-            Item { qty: 5, length: 2.0, width: 10.0, height: 10.0 },
-            Item { qty: 1, length: 10.0, width: 1.0, height: 1.0 },
+            Item {
+                qty: 5,
+                length: 2.0,
+                width: 10.0,
+                height: 10.0,
+            },
+            Item {
+                qty: 1,
+                length: 10.0,
+                width: 1.0,
+                height: 1.0,
+            },
         ]);
-        assert_eq!(out, Dimensions { length: 20.0, width: 10.0, height: 10.0 });
+        assert_eq!(
+            out,
+            Dimensions {
+                length: 20.0,
+                width: 10.0,
+                height: 10.0
+            }
+        );
     }
 
     #[test]
     fn side_wins() {
         let out = calculate(&[
-            Item { qty: 5, length: 10.0, width: 2.0, height: 10.0 },
-            Item { qty: 1, length: 1.0, width: 10.0, height: 1.0 },
+            Item {
+                qty: 5,
+                length: 10.0,
+                width: 2.0,
+                height: 10.0,
+            },
+            Item {
+                qty: 1,
+                length: 1.0,
+                width: 10.0,
+                height: 1.0,
+            },
         ]);
-        assert_eq!(out, Dimensions { length: 10.0, width: 20.0, height: 10.0 });
+        assert_eq!(
+            out,
+            Dimensions {
+                length: 10.0,
+                width: 20.0,
+                height: 10.0
+            }
+        );
     }
 
     #[test]
     fn qty_zero_treated_as_one() {
-        let out = calculate(&[Item { qty: 0, length: 10.0, width: 5.0, height: 3.0 }]);
-        assert_eq!(out, Dimensions { length: 10.0, width: 5.0, height: 3.0 });
+        let out = calculate(&[Item {
+            qty: 0,
+            length: 10.0,
+            width: 5.0,
+            height: 3.0,
+        }]);
+        assert_eq!(
+            out,
+            Dimensions {
+                length: 10.0,
+                width: 5.0,
+                height: 3.0
+            }
+        );
     }
 }

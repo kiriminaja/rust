@@ -110,10 +110,7 @@ impl HttpClient {
         if !status.is_success() {
             return Err(Error::Api {
                 status: status.as_u16(),
-                status_text: status
-                    .canonical_reason()
-                    .unwrap_or("")
-                    .to_string(),
+                status_text: status.canonical_reason().unwrap_or("").to_string(),
                 body: String::from_utf8_lossy(&bytes).to_string(),
             });
         }

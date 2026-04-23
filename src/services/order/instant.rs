@@ -54,10 +54,7 @@ impl InstantOrderService {
             .await
     }
 
-    pub async fn find_new_driver(
-        &self,
-        order_id: &str,
-    ) -> Result<FindNewInstantDriverResponse> {
+    pub async fn find_new_driver(&self, order_id: &str) -> Result<FindNewInstantDriverResponse> {
         if order_id.is_empty() {
             return Err(Error::InvalidArgument("order_id must not be empty".into()));
         }

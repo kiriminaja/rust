@@ -44,10 +44,10 @@ use crate::types::{
     CancelExpressOrderResponse, CancelInstantOrderResponse, CityListResponse,
     CourierDetailResponse, CourierGroupResponse, CourierListResponse, CreateInstantPickupResponse,
     CreditBalanceResponse, DistrictByNameResponse, DistrictListResponse, ExpressTrackingResponse,
-    FindNewInstantDriverResponse, GetPaymentResponse, InstantPickupPayload, InstantTrackingResponse,
-    KAResponse, PickupSchedulesResponse, PricingExpressPayload, PricingInstantPayload,
-    ProvinceListResponse, RequestPickupPayload, SetCourierPreferenceResponse,
-    SubDistrictListResponse,
+    FindNewInstantDriverResponse, GetPaymentResponse, InstantPickupPayload,
+    InstantTrackingResponse, KAResponse, PickupSchedulesResponse, PricingExpressPayload,
+    PricingInstantPayload, ProvinceListResponse, RequestPickupPayload,
+    SetCourierPreferenceResponse, SubDistrictListResponse,
 };
 
 type SharedRt = Arc<Runtime>;
@@ -81,13 +81,22 @@ impl Client {
         let inner = crate::Client::new(cfg);
         let rt = new_runtime();
         Self {
-            address: AddressService { inner: inner.address.clone(), rt: rt.clone() },
-            courier: CourierService { inner: inner.courier.clone(), rt: rt.clone() },
+            address: AddressService {
+                inner: inner.address.clone(),
+                rt: rt.clone(),
+            },
+            courier: CourierService {
+                inner: inner.courier.clone(),
+                rt: rt.clone(),
+            },
             coverage_area: CoverageAreaService {
                 inner: inner.coverage_area.clone(),
                 rt: rt.clone(),
             },
-            credit: CreditService { inner: inner.credit.clone(), rt: rt.clone() },
+            credit: CreditService {
+                inner: inner.credit.clone(),
+                rt: rt.clone(),
+            },
             order: OrderService {
                 express: ExpressOrderService {
                     inner: inner.order.express.clone(),
@@ -98,8 +107,14 @@ impl Client {
                     rt: rt.clone(),
                 },
             },
-            payment: PaymentService { inner: inner.payment.clone(), rt: rt.clone() },
-            pickup: PickupService { inner: inner.pickup.clone(), rt: rt.clone() },
+            payment: PaymentService {
+                inner: inner.payment.clone(),
+                rt: rt.clone(),
+            },
+            pickup: PickupService {
+                inner: inner.pickup.clone(),
+                rt: rt.clone(),
+            },
             rt,
         }
     }
@@ -153,7 +168,8 @@ impl CourierService {
         &self,
         services: &[String],
     ) -> Result<SetCourierPreferenceResponse> {
-        self.rt.block_on(self.inner.set_whitelist_services(services))
+        self.rt
+            .block_on(self.inner.set_whitelist_services(services))
     }
 }
 

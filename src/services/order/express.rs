@@ -52,10 +52,14 @@ impl ExpressOrderService {
 
     pub async fn request_pickup(&self, payload: &RequestPickupPayload) -> Result<KAResponse> {
         if payload.name.is_empty() {
-            return Err(Error::InvalidArgument("payload.name must not be empty".into()));
+            return Err(Error::InvalidArgument(
+                "payload.name must not be empty".into(),
+            ));
         }
         if payload.phone.is_empty() {
-            return Err(Error::InvalidArgument("payload.phone must not be empty".into()));
+            return Err(Error::InvalidArgument(
+                "payload.phone must not be empty".into(),
+            ));
         }
         if payload.address.is_empty() {
             return Err(Error::InvalidArgument(
