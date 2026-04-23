@@ -1,0 +1,39 @@
+# --- Rust / Cargo ---
+/target/
+**/*.rs.bk
+*.pdb
+
+# Cargo.lock: keep for binaries, ignore for libraries.
+# This crate is published as a library, so the lockfile is ignored.
+Cargo.lock
+
+# --- Build / coverage artifacts ---
+/coverage/
+*.profraw
+*.profdata
+tarpaulin-report.*
+lcov.info
+
+# --- Editor / IDE ---
+.vscode/
+.idea/
+*.iml
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# rust-analyzer
+.rust-analyzer/
+
+# --- Environment / secrets ---
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# --- Logs / temp ---
+*.log
+tmp/
