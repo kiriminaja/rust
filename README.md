@@ -9,6 +9,10 @@ that examples and call patterns translate one-to-one between the two.
 - Tokio (or any async runtime compatible with `reqwest`)
 
 ## Installation
+Instalation
+```
+cargo add kiriminaja --git https://github.com/kiriminaja/rust
+```
 
 ```toml
 [dependencies]
