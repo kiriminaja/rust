@@ -25,6 +25,7 @@ pub mod error;
 pub mod http;
 pub mod services;
 pub mod types;
+pub mod utils;
 
 #[cfg(feature = "blocking")]
 pub mod blocking;

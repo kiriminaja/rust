@@ -1,18 +1,23 @@
 # KiriminAja Rust SDK
 
-Async Rust SDK for the [KiriminAja](https://kiriminaja.com)
-that examples and call patterns translate one-to-one between the two.
+[![Crates.io](https://img.shields.io/crates/v/kiriminaja)](https://crates.io/crates/kiriminaja)
+[![Docs.rs](https://img.shields.io/docsrs/kiriminaja)](https://docs.rs/kiriminaja)
+[![license](https://img.shields.io/crates/l/kiriminaja)](LICENSE)
+
+Official Rust SDK for the [KiriminAja](https://kiriminaja.com) logistics API. Async-first (powered by `reqwest` + `tokio`) with an opt-in synchronous facade. The API surface mirrors the Go SDK so examples translate one-to-one.
 
 ## Requirements
 
 - Rust 1.75+
-- Tokio (or any async runtime compatible with `reqwest`)
+- An async runtime compatible with `reqwest` (Tokio recommended)
 
 ## Installation
-Instalation
+
+```bash
+cargo add kiriminaja
 ```
-cargo add kiriminaja --git https://github.com/kiriminaja/rust
-```
+
+Or in `Cargo.toml`:
 
 ```toml
 [dependencies]
@@ -20,7 +25,11 @@ kiriminaja = "0.1"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 ```
 
+---
+
 ## Quick Start
+
+Create a client with `Client::new()`, then call any service method.
 
 ```rust
 use kiriminaja::{Client, Config, Env};
@@ -33,11 +42,53 @@ async fn main() -> kiriminaja::Result<()> {
         ..Default::default()
     });
 
+    // Use any service
     let provinces = client.address.provinces().await?;
     println!("{:#?}", provinces);
     Ok(())
 }
 ```
+
+---
+
+## Config Options
+
+| Field         | Type                      | Default              | Description                                   |
+| ------------- | ------------------------- | -------------------- | --------------------------------------------- |
+| `env`         | `Env`                     | `Env::Sandbox`       | Target environment                            |
+| `api_key`     | `String`                  | _required_           | Your KiriminAja API key                       |
+| `base_url`    | `Option<String>`          | derived from `env`   | Override the base URL                         |
+| `timeout`     | `Option<Duration>`        | 30s                  | Request timeout (used when no `http_client`)  |
+| `http_client` | `Option<reqwest::Client>` | new client           | Bring-your-own `reqwest::Client`              |
+
+```rust
+use std::time::Duration;
+use kiriminaja::{Client, Config, Env};
+
+// Custom base URL
+let client = Client::new(Config {
+    base_url: Some("https://tdev.kiriminaja.com".into()),
+    api_key: std::env::var("KIRIMINAJA_API_KEY").unwrap_or_default(),
+    ..Default::default()
+});
+
+// Custom timeout
+let client = Client::new(Config {
+    api_key: "...".into(),
+    timeout: Some(Duration::from_secs(10)),
+    ..Default::default()
+});
+
+// Bring your own reqwest::Client (proxy / test mock)
+let http = reqwest::Client::builder().user_agent("my-app/1.0").build().unwrap();
+let client = Client::new(Config {
+    api_key: "...".into(),
+    http_client: Some(http),
+    ..Default::default()
+});
+```
+
+---
 
 ## Synchronous (blocking) API
 
@@ -65,50 +116,36 @@ fn main() -> kiriminaja::Result<()> {
 }
 ```
 
-The blocking client wraps the async client with a small internal Tokio
-runtime; the API surface is identical except methods are not `async`.
+The blocking client wraps the async client with a small internal Tokio runtime; the API surface is identical except methods are not `async`.
 
-> ⚠️ **Caveat — do not call blocking methods from inside an async runtime.**
->
-> The blocking facade calls `runtime.block_on(...)` internally. If you invoke
-> it from within an existing Tokio runtime (for example an `axum`, `actix-web`,
-> or `tokio::main` handler), Tokio will panic with:
->
-> ```text
-> Cannot start a runtime from within a runtime. This happens because a
-> function (like `block_on`) attempted to block the current thread while
-> the thread is being used to drive asynchronous tasks.
-> ```
->
-> In async contexts, always use the async [`kiriminaja::Client`] directly.
-> The `blocking` facade is only meant for plain `fn main()` programs, CLIs,
-> tests, scripts, and synchronous codebases that do not have an async runtime
-> of their own.
+> ⚠️ **Do not call blocking methods from inside an async runtime.** The blocking facade calls `runtime.block_on(...)` internally, which Tokio rejects with: _"Cannot start a runtime from within a runtime."_ In async contexts (axum, actix-web, `#[tokio::main]`), use the async [`kiriminaja::Client`] directly.
 
-## Config Options
-
-| Field         | Type                      | Default              | Description                                  |
-| ------------- | ------------------------- | -------------------- | -------------------------------------------- |
-| `env`         | `Env`                     | `Env::Sandbox`       | Target environment.                          |
-| `api_key`     | `String`                  | _required_           | Your KiriminAja API key.                     |
-| `base_url`    | `Option<String>`          | derived from `env`   | Override the base URL.                       |
-| `timeout`     | `Option<Duration>`        | 30s                  | Request timeout (used when no `http_client`).|
-| `http_client` | `Option<reqwest::Client>` | new client           | Bring-your-own `reqwest` client.             |
+---
 
 ## Services
 
-API methods correspond directly to the Go SDK. All methods are `async` and
-return `kiriminaja::Result<T>`.
+All async methods return `kiriminaja::Result<T>`.
 
 ### Address
 
 ```rust
+// List all provinces
 client.address.provinces().await?;
-client.address.cities(5).await?;            // provinsi_id
-client.address.districts(12).await?;        // kabupaten_id
-client.address.sub_districts(77).await?;    // kecamatan_id
+
+// Cities in a province (provinsi_id)
+client.address.cities(5).await?;
+
+// Districts in a city (kabupaten_id)
+client.address.districts(12).await?;
+
+// Sub-districts in a district (kecamatan_id)
+client.address.sub_districts(77).await?;
+
+// Search districts by name
 client.address.districts_by_name("jakarta").await?;
 ```
+
+---
 
 ### Coverage Area & Pricing
 
@@ -118,15 +155,17 @@ use kiriminaja::types::{
     PricingExpressPayload, PricingInstantLocationPayload, PricingInstantPayload,
 };
 
+// Express shipping rates
 client.coverage_area.pricing_express(&PricingExpressPayload {
     origin: 1,
     destination: 2,
-    weight: 1000,
+    weight: 1000, // grams
     item_value: 50_000,
     insurance: 0,
     courier: vec![ExpressService::Jne, ExpressService::Jnt],
 }).await?;
 
+// Instant (same-day) rates
 client.coverage_area.pricing_instant(&PricingInstantPayload {
     service: vec![InstantService::Gosend],
     item_price: 10_000.0,
@@ -142,14 +181,23 @@ client.coverage_area.pricing_instant(&PricingInstantPayload {
 }).await?;
 ```
 
+---
+
 ### Order — Express
 
 ```rust
-use kiriminaja::types::{RequestPickupItem, RequestPickupItemMetadata, RequestPickupPackage, RequestPickupPayload};
+use kiriminaja::types::{
+    RequestPickupItem, RequestPickupItemMetadata,
+    RequestPickupPackage, RequestPickupPayload,
+};
 
+// Track by order ID
 client.order.express.track("ORDER123").await?;
+
+// Cancel by AWB
 client.order.express.cancel("AWB123456", "Customer request").await?;
 
+// Request pickup
 client.order.express.request_pickup(&RequestPickupPayload {
     address: "Jl. Jodipati No.29".into(),
     phone: "08133345678".into(),
@@ -189,6 +237,8 @@ client.order.express.request_pickup(&RequestPickupPayload {
 }).await?;
 ```
 
+---
+
 ### Order — Instant
 
 ```rust
@@ -197,6 +247,7 @@ use kiriminaja::types::{
     InstantService, InstantVehicle,
 };
 
+// Create instant pickup
 client.order.instant.create(&InstantPickupPayload {
     service: InstantService::Gosend,
     service_type: "instant".into(),
@@ -225,19 +276,35 @@ client.order.instant.create(&InstantPickupPayload {
     }],
 }).await?;
 
+// Find a new driver for an existing order
 client.order.instant.find_new_driver("ORDER123").await?;
+
+// Cancel instant order
 client.order.instant.cancel("ORDER123").await?;
+
+// Track instant order
 client.order.instant.track("ORDER123").await?;
 ```
+
+---
 
 ### Courier
 
 ```rust
+// List available couriers
 client.courier.list().await?;
+
+// Courier groups
 client.courier.group().await?;
+
+// Courier service detail
 client.courier.detail("jne").await?;
+
+// Set whitelist services
 client.courier.set_whitelist_services(&["jne_reg".into(), "jne_yes".into()]).await?;
 ```
+
+---
 
 ### Pickup Schedules
 
@@ -245,11 +312,15 @@ client.courier.set_whitelist_services(&["jne_reg".into(), "jne_yes".into()]).awa
 client.pickup.schedules().await?;
 ```
 
+---
+
 ### Payment
 
 ```rust
 client.payment.get_payment("PAY123").await?;
 ```
+
+---
 
 ### Credit
 
@@ -259,11 +330,33 @@ let balance = client.credit.balance().await?;
 // balance.data.balance -> f64
 ```
 
+---
+
+### Utilities — Volumetric
+
+Estimate the smallest bounding box (length × width × height) for a multi-item
+package by trying vertical / horizontal / side-by-side stacking and returning
+the arrangement with the smallest volume.
+
+```rust
+use kiriminaja::utils::volumetric::{self, Item};
+
+let dim = volumetric::calculate(&[
+    Item { qty: 2, length: 10.0, width: 10.0, height: 2.0 },
+    Item { qty: 1, length: 5.0,  width: 5.0,  height: 5.0 },
+]);
+// dim.length, dim.width, dim.height
+```
+
+---
+
 ## Error handling
 
 All methods return `kiriminaja::Result<T>` where `Error` distinguishes invalid
 arguments, transport errors, decoding errors, and non-2xx API responses
 (`Error::Api { status, body, .. }`).
+
+---
 
 ## Development
 
