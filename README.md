@@ -53,13 +53,13 @@ async fn main() -> kiriminaja::Result<()> {
 
 ## Config Options
 
-| Field         | Type                      | Default              | Description                                   |
-| ------------- | ------------------------- | -------------------- | --------------------------------------------- |
-| `env`         | `Env`                     | `Env::Sandbox`       | Target environment                            |
-| `api_key`     | `String`                  | _required_           | Your KiriminAja API key                       |
-| `base_url`    | `Option<String>`          | derived from `env`   | Override the base URL                         |
-| `timeout`     | `Option<Duration>`        | 30s                  | Request timeout (used when no `http_client`)  |
-| `http_client` | `Option<reqwest::Client>` | new client           | Bring-your-own `reqwest::Client`              |
+| Field         | Type                      | Default            | Description                                  |
+| ------------- | ------------------------- | ------------------ | -------------------------------------------- |
+| `env`         | `Env`                     | `Env::Sandbox`     | Target environment                           |
+| `api_key`     | `String`                  | _required_         | Your KiriminAja API key                      |
+| `base_url`    | `Option<String>`          | derived from `env` | Override the base URL                        |
+| `timeout`     | `Option<Duration>`        | 30s                | Request timeout (used when no `http_client`) |
+| `http_client` | `Option<reqwest::Client>` | new client         | Bring-your-own `reqwest::Client`             |
 
 ```rust
 use std::time::Duration;
