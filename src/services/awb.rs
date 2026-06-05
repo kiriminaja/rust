@@ -13,6 +13,8 @@ impl AWBService {
     }
 
     pub async fn print(&self, payload: &PrintAWBRequest) -> Result<PrintAWBResponse> {
-        self.client.post_json("/api/mitra/v6.1/awb/print", payload).await
+        self.client
+            .post_json("/api/mitra/v6.1/awb/print", payload)
+            .await
     }
 }

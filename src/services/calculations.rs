@@ -13,6 +13,8 @@ impl CalculationsService {
     }
 
     pub async fn cod(&self, payload: &CalculateCODRequest) -> Result<CalculateCODResponse> {
-        self.client.post_json("/api/mitra/calculations/cod", payload).await
+        self.client
+            .post_json("/api/mitra/calculations/cod", payload)
+            .await
     }
 }
