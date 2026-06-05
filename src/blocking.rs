@@ -33,6 +33,8 @@ use tokio::runtime::{Builder, Runtime};
 use crate::config::Config;
 use crate::error::Result;
 use crate::services::address::AddressService as AsyncAddress;
+use crate::services::awb::AWBService as AsyncAWB;
+use crate::services::calculations::CalculationsService as AsyncCalculations;
 use crate::services::courier::CourierService as AsyncCourier;
 use crate::services::coverage_area::CoverageAreaService as AsyncCoverageArea;
 use crate::services::credit::CreditService as AsyncCredit;
@@ -40,14 +42,17 @@ use crate::services::order::express::ExpressOrderService as AsyncExpress;
 use crate::services::order::instant::InstantOrderService as AsyncInstant;
 use crate::services::payment::PaymentService as AsyncPayment;
 use crate::services::pickup::PickupService as AsyncPickup;
+use crate::services::profile::ProfileService as AsyncProfile;
 use crate::types::{
-    CancelExpressOrderResponse, CancelInstantOrderResponse, CityListResponse,
-    CourierDetailResponse, CourierGroupResponse, CourierListResponse, CreateInstantPickupResponse,
-    CreditBalanceResponse, DistrictByNameResponse, DistrictListResponse, ExpressTrackingResponse,
+    CalculateCODRequest, CalculateCODResponse, CancelExpressOrderResponse,
+    CancelInstantOrderResponse, CityListResponse, CourierDetailResponse, CourierGroupResponse,
+    CourierListResponse, CreateInstantPickupResponse, CreditBalanceResponse,
+    DistrictByNameResponse, DistrictListResponse, ExpressTrackingResponse,
     FindNewInstantDriverResponse, GetPaymentResponse, InstantPickupPayload,
     InstantTrackingResponse, KAResponse, PickupSchedulesResponse, PricingExpressPayload,
-    PricingInstantPayload, ProvinceListResponse, RequestPickupPayload,
-    SetCourierPreferenceResponse, SubDistrictListResponse,
+    PricingInstantPayload, PrintAWBRequest, PrintAWBResponse, ProfileResponse,
+    ProvinceListResponse, RequestPickupPayload, SetCourierPreferenceResponse,
+    SubDistrictListResponse,
 };
 
 type SharedRt = Arc<Runtime>;
@@ -65,12 +70,15 @@ fn new_runtime() -> SharedRt {
 #[derive(Clone)]
 pub struct Client {
     pub address: AddressService,
+    pub awb: AWBService,
+    pub calculations: CalculationsService,
     pub courier: CourierService,
     pub coverage_area: CoverageAreaService,
     pub credit: CreditService,
     pub order: OrderService,
     pub payment: PaymentService,
     pub pickup: PickupService,
+    pub profile: ProfileService,
 
     #[allow(dead_code)]
     rt: SharedRt,
@@ -83,6 +91,14 @@ impl Client {
         Self {
             address: AddressService {
                 inner: inner.address.clone(),
+                rt: rt.clone(),
+            },
+            awb: AWBService {
+                inner: inner.awb.clone(),
+                rt: rt.clone(),
+            },
+            calculations: CalculationsService {
+                inner: inner.calculations.clone(),
                 rt: rt.clone(),
             },
             courier: CourierService {
@@ -113,6 +129,10 @@ impl Client {
             },
             pickup: PickupService {
                 inner: inner.pickup.clone(),
+                rt: rt.clone(),
+            },
+            profile: ProfileService {
+                inner: inner.profile.clone(),
                 rt: rt.clone(),
             },
             rt,
@@ -291,5 +311,47 @@ pub struct PickupService {
 impl PickupService {
     pub fn schedules(&self) -> Result<PickupSchedulesResponse> {
         self.rt.block_on(self.inner.schedules())
+    }
+}
+
+// ----- Calculations -----
+
+#[derive(Clone)]
+pub struct CalculationsService {
+    inner: AsyncCalculations,
+    rt: SharedRt,
+}
+
+impl CalculationsService {
+    pub fn cod(&self, payload: &CalculateCODRequest) -> Result<CalculateCODResponse> {
+        self.rt.block_on(self.inner.cod(payload))
+    }
+}
+
+// ----- Profile -----
+
+#[derive(Clone)]
+pub struct ProfileService {
+    inner: AsyncProfile,
+    rt: SharedRt,
+}
+
+impl ProfileService {
+    pub fn get(&self) -> Result<ProfileResponse> {
+        self.rt.block_on(self.inner.get())
+    }
+}
+
+// ----- AWB -----
+
+#[derive(Clone)]
+pub struct AWBService {
+    inner: AsyncAWB,
+    rt: SharedRt,
+}
+
+impl AWBService {
+    pub fn print(&self, payload: &PrintAWBRequest) -> Result<PrintAWBResponse> {
+        self.rt.block_on(self.inner.print(payload))
     }
 }

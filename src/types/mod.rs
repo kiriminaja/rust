@@ -2,21 +2,27 @@
 
 mod address;
 mod api_response;
+mod awb;
+mod calculations;
 mod courier;
 mod coverage_area;
 mod credit;
 mod order;
 mod payment;
 mod pickup;
+mod profile;
 
 pub use address::*;
 pub use api_response::*;
+pub use awb::*;
+pub use calculations::*;
 pub use courier::*;
 pub use coverage_area::*;
 pub use credit::*;
 pub use order::*;
 pub use payment::*;
 pub use pickup::*;
+pub use profile::*;
 
 use serde::{Deserialize, Serialize};
 

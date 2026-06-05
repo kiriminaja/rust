@@ -37,24 +37,30 @@ pub use error::{Error, Result};
 pub use http::HttpClient;
 
 use services::address::AddressService;
+use services::awb::AWBService;
+use services::calculations::CalculationsService;
 use services::courier::CourierService;
 use services::coverage_area::CoverageAreaService;
 use services::credit::CreditService;
 use services::order::OrderService;
 use services::payment::PaymentService;
 use services::pickup::PickupService;
+use services::profile::ProfileService;
 
 /// Top-level KiriminAja client. Mirrors the Go `Client` struct: services are
 /// exposed as public fields so callers write `client.address.provinces()` etc.
 #[derive(Debug, Clone)]
 pub struct Client {
     pub address: AddressService,
+    pub awb: AWBService,
+    pub calculations: CalculationsService,
     pub courier: CourierService,
     pub coverage_area: CoverageAreaService,
     pub credit: CreditService,
     pub order: OrderService,
     pub payment: PaymentService,
     pub pickup: PickupService,
+    pub profile: ProfileService,
 
     #[allow(dead_code)]
     http: Arc<HttpClient>,
@@ -65,12 +71,15 @@ impl Client {
         let http = Arc::new(HttpClient::from_config(&cfg));
         Self {
             address: AddressService::new(http.clone()),
+            awb: AWBService::new(http.clone()),
+            calculations: CalculationsService::new(http.clone()),
             courier: CourierService::new(http.clone()),
             coverage_area: CoverageAreaService::new(http.clone()),
             credit: CreditService::new(http.clone()),
             order: OrderService::new(http.clone()),
             payment: PaymentService::new(http.clone()),
             pickup: PickupService::new(http.clone()),
+            profile: ProfileService::new(http.clone()),
             http,
         }
     }

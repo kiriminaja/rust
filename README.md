@@ -332,6 +332,48 @@ let balance = client.credit.balance().await?;
 
 ---
 
+### AWB (Print Waybill)
+
+```rust
+use kiriminaja::types::PrintAWBRequest;
+
+// Print shipping label / waybill by AWB number(s)
+let res = client.awb.print(&PrintAWBRequest {
+    awb: vec!["AWB123".into(), "AWB456".into()],
+}).await?;
+// res.data.data.url -> PDF download URL
+```
+
+---
+
+### Calculations (COD)
+
+```rust
+use kiriminaja::types::{CalculateCODRequest, CalculateCODDataItem};
+
+// Calculate COD (Cash on Delivery) fee
+let res = client.calculations.cod(&CalculateCODRequest {
+    item_price: 100_000,
+    data: vec![CalculateCODDataItem {
+        courier_code: "jne".into(),
+        courier_service_code: "reg".into(),
+        shipping_cost: Some(10_000),
+        ..Default::default()
+    }],
+}).await?;
+// res.results -> Vec<CalculateCODResult>
+```
+
+---
+
+### Profile
+
+```rust
+// Get member profile and metadata
+let res = client.profile.get().await?;
+// res.results.id, res.results.email, res.results.name, res.results.metadata
+```
+
 ### Utilities — Volumetric
 
 Estimate the smallest bounding box (length × width × height) for a multi-item
